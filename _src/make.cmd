@@ -1,0 +1,1 @@
+pelican -s pelicanconf.py -o .. ./content/
