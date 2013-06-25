@@ -32,7 +32,7 @@ from IPython.utils import py3compat
 from IPython.nbformat.v3.nbjson import BytesEncoder
 
 # Our own imports
-#from lexers import IPythonLexer
+from lexers import IPythonLexer
 
 #-----------------------------------------------------------------------------
 # Globals and constants

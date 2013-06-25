@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
+import sys
+sys.path.append('plugins')
+
 AUTHOR = u'Alexander Mordvintsev'
 SITENAME = u'Alexander Mordvintsev'
 SITEURL = '' # defined in publishconf.py

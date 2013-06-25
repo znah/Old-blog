@@ -50,12 +50,12 @@ from .mdx_liquid_tags import LiquidTags
 # nbconverters: part of the nbconvert package
 from converters import ConverterMarkdown  # requires nbconvert package
 
-SYNTAX = "{% notebook /path/to/notebook.ipynb [ cells[start:end] ] %}"
+SYNTAX = "{% notebook_md /path/to/notebook.ipynb [ cells[start:end] ] %}"
 FORMAT = re.compile(r"""^(\s+)?(?P<src>\S+)(\s+)?((cells\[)(?P<start>-?[0-9]*):(?P<end>-?[0-9]*)(\]))?(\s+)?$""")
 
 
-@LiquidTags.register('notebook')
-def notebook(preprocessor, tag, markup):
+@LiquidTags.register('notebook_md')
+def notebook_md(preprocessor, tag, markup):
     match = FORMAT.search(markup)
     if match:
         argdict = match.groupdict()
@@ -87,13 +87,17 @@ def notebook(preprocessor, tag, markup):
     converter = ConverterMarkdown(infile=nb_path)
     converter.read()
 
-    body_lines = process_body(converter.main_body('\n'))
+    #body_lines = process_body(converter.main_body('\n'))
+    body_lines = converter.main_body('\n')
     
     #body_lines = strip_divs(body_lines, start, end)
 
     #body = preprocessor.configs.htmlStash.store('\n'.join(body_lines),
     #                                            safe=True)
-    return body_lines
+    result = '\n'.join(body_lines)
+    open('nb_md.txt', 'w').write(result)
+
+    return result
 
 
 #----------------------------------------------------------------------
