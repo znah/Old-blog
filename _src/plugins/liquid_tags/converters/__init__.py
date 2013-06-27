@@ -13,9 +13,9 @@ and defines the API relied upon by the `nbconvert` tool.
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-#from .html import ConverterHTML
+from .html import ConverterHTML
 from .markdown import ConverterMarkdown
-#from .bloggerhtml import ConverterBloggerHTML
+from .bloggerhtml import ConverterBloggerHTML
 #from .rst import ConverterRST
 #from .latex import ConverterLaTeX
 #from .python import ConverterPy

@@ -28,6 +28,7 @@ from markdown import markdown
 # IPython imports
 from IPython.utils import path
 from IPython.frontend.html.notebook import notebookapp
+#from IPython.utils.traitlets import List
 
 # Our own imports
 from .base import Converter
@@ -46,6 +47,8 @@ class ConverterHTML(Converter):
     #-------------------------------------------------------------------------
     extension = 'html'
     blank_symbol = '&nbsp;'
+
+    markdown_ext = []
 
     def in_tag(self, tag, src, attrs=None):
         """Return a list of elements bracketed by the given tag"""
@@ -160,7 +163,7 @@ class ConverterHTML(Converter):
 
     @text_cell
     def render_markdown(self, cell):
-        return [markdown(cell.source)]
+        return [markdown(cell.source, extensions=self.markdown_ext)]
 
     def render_raw(self, cell):
         if self.raw_as_verbatim:

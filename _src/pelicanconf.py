@@ -20,7 +20,7 @@ MARKUP = ('rst', 'md', 'html')
 THEME = 'themes/notmyidea'
 
 PLUGIN_PATH = 'plugins'
-PLUGINS = ['latex', 'liquid_tags.notebook_md']
+PLUGINS = ['latex', 'liquid_tags.notebook']
 
 MD_EXTENSIONS = ['codehilite(css_class=highlight)', 'extra', 'mathjax']
 
