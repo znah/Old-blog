@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <title>Kinect + PS3 Move</title>
+        <link rel="stylesheet" href="/theme/css/main.css">
+                
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type= "text/javascript">
+       MathJax.Hub.Config({
+           config: ["MMLorHTML.js"],
+           jax: ["input/TeX","input/MathML","output/HTML-CSS","output/NativeMML"],
+           TeX: { extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"] },
+           extensions: ["tex2jax.js","mml2jax.js","MathMenu.js","MathZoom.js"],
+           tex2jax: { 
+               inlineMath: [ ['$','$'] ],
+               displayMath: [ ['$$','$$'] ],
+               processEscapes: true },
+           "HTML-CSS": {
+               styles: { ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+           }
+       });
+    </script>
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Alexander Mordvintsev  <strong>Teaching computers to see</strong></a></h1>
+                <nav><ul>
+                                                    <li><a href="/pages/about.html">About</a></li>
+                                                                    <li class="active"><a href="/category/blog.html">blog</a></li>
+                                    <li ><a href="/category/notebooks.html">notebooks</a></li>
+                                                </ul></nav>
+        </header><!-- /#banner -->
+        <section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/kinect-ps3-move.html" rel="bookmark"
+           title="Permalink to Kinect + PS3 Move">Kinect + PS3 Move</a></h1>
+          </header>
+
+    <div class="entry-content">
+      <footer class="post-info">
+        <abbr class="published" title="2013-01-04T00:00:00">
+                Пт 04 Январь 2013
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="/author/alexander-mordvintsev.html">Alexander Mordvintsev</a>
+        </address>
+        <p>In <a href="/category/blog.html">blog</a>. </p>
+
+</footer><!-- /.post-info -->      
+<div class="separator" style="clear: both; text-align: left;">Once I happened to have both MS <a href="http://en.wikipedia.org/wiki/Kinect">Kinect</a> and <a href="http://en.wikipedia.org/wiki/PlayStation_Move">PS3 Move</a>&nbsp;on my table. I connected both of them to my PC (trivial for Kinect and ugly for Move). Then I tried to calibrate both cameras to match their coordinate frames. Here is the result I managed to get:</div><div class="separator" style="clear: both; text-align: left;"><br /></div><div class="separator" style="clear: both; text-align: center;"><object class="BLOGGER-youtube-video" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0" data-thumbnail-src="http://0.gvt0.com/vi/O4VqGUbNG7g/0.jpg" height="266" width="320"><param name="movie" value="http://www.youtube.com/v/O4VqGUbNG7g&amp;fs=1&amp;source=uds" /><param name="bgcolor" value="#FFFFFF" /><param name="allowFullScreen" value="true" /><embed width="320" height="266" src="http://www.youtube.com/v/O4VqGUbNG7g&amp;fs=1&amp;source=uds" type="application/x-shockwave-flash" allowfullscreen="true"></embed></object></div><br />There is some noticeable latency between Move and Kinect data streams. Also the setup for connecting PS3 Move to PC was so ugly and&nbsp;inconvenient&nbsp;(required a full PlayStation 3 and $100 Move.Me app for it) that I abandoned that experiment. Shame on you, Sony.<br /><br />Recently I stumbled upon the <a href="http://code.google.com/p/moveonpc/">MoveOnPC</a> project, which can probably be used to make a setup like mine, but more usable.
+    </div><!-- /.entry-content -->
+    
+  </article>
+</section>
+        <section id="extras" class="body">
+                        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

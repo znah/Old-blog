@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <title>Alexander Mordvintsev - notebooks</title>
+        <link rel="stylesheet" href="/theme/css/main.css">
+                
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type= "text/javascript">
+       MathJax.Hub.Config({
+           config: ["MMLorHTML.js"],
+           jax: ["input/TeX","input/MathML","output/HTML-CSS","output/NativeMML"],
+           TeX: { extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"] },
+           extensions: ["tex2jax.js","mml2jax.js","MathMenu.js","MathZoom.js"],
+           tex2jax: { 
+               inlineMath: [ ['$','$'] ],
+               displayMath: [ ['$$','$$'] ],
+               processEscapes: true },
+           "HTML-CSS": {
+               styles: { ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+           }
+       });
+    </script>
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Alexander Mordvintsev  <strong>Teaching computers to see</strong></a></h1>
+                <nav><ul>
+                                                    <li><a href="/pages/about.html">About</a></li>
+                                                                    <li ><a href="/category/blog.html">blog</a></li>
+                                    <li class="active"><a href="/category/notebooks.html">notebooks</a></li>
+                                                </ul></nav>
+        </header><!-- /#banner -->
+                
+            
+
+                            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/rof-and-tv-l1-denoising-with-primal-dual-algorithm.html">ROF and TV-L1 denoising with Primal-Dual algorithm</a></h1> 
+                    <footer class="post-info">
+        <abbr class="published" title="2013-06-30T00:00:00">
+                Вс 30 Июнь 2013
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="/author/alexander-mordvintsev.html">Alexander Mordvintsev</a>
+        </address>
+        <p>In <a href="/category/notebooks.html">notebooks</a>. </p>
+
+</footer><!-- /.post-info --><div class="text_cell_render border-box-sizing rendered_html">
+<p>This notebook shows how ROF and TV-L1 variational denoising models can be implemented using Primal-Dual optimization alghorithm. While the denoising results may be inferior comparing to some other methods, it is still a nice toy example, showing how convex variational methods can be appied to image processing problems.</p>
+<p>The in-depth discussion and justification of described approaches can be found in:</p>
+<blockquote>
+<p><em>A. Chambolle et al</em> "An introduction to Total Variation for Image Analysis" 
+(<a href="http://hal.archives-ouvertes.fr/docs/00/43/75/81/PDF/preprint.pdf">PDF</a>)</p>
+</blockquote>
+<p>Also take a look at <a href="http://gpu4vision.icg.tugraz.at/">GPU4Vision</a> project for more information on variational methods in computer vision.</p>
+<p><em>Disclaimer: this notebook was written to familiarize myself with Total-Variation based methods and as a trial for IPyhon Notebook based publishing</em>.</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="c"># imports and notebook setup</span>
+<span class="kn">from</span> <span class="nn">nbutils</span> <span class="kn">import</span> <span class="n">showarray</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's take some image and spoil it with noise</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">lena</span>
+<span class="n">img_ref</span> <span class="o">=</span> <span class="n">lena</span><span class="p">()[</span><span class="mi">140</span><span class="p">:,</span><span class="mi">120</span><span class="p">:][:</span><span class="mi">256</span><span class="p">,:</span><span class="mi">256</span><span class="p">]</span> <span class="o">/</span> <span class="mf">255.0</span>
+
+<span class="k">def</span> <span class="nf">make_noisy</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="c"># add gaussian noise</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="c"># add some outliers in on the right side of the image</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.2</span>
+    <span class="n">m</span><span class="p">[:,:</span><span class="mi">160</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">img</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">rand</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">img</span>
+
+<span class="n">img_obs</span> <span class="o">=</span> <span class="n">make_noisy</span><span class="p">(</span><span class="n">img_ref</span><span class="p">)</span>
+<span class="n">showarray</span><span class="p">(</span><span class="n">hstack</span><span class="p">([</span><span class="n">img_ref</span><span class="p">,</span> <span class="n">ones</span><span class="p">((</span><span class="mi">256</span><span class="p">,</span> <span class="mi">16</span><span class="p">)),</span> <span class="n">img_obs</span><span class="p">]))</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<img src="/images/TV_denoise/TV_denoise_fig_00.png">
+</img>
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will compare following denoising models:</p>
+<ul>
+<li>ROF</li>
+</ul>
+<p><mathjax>$$ \min_x \|\nabla x\| + \frac{\lambda}{2} \|x - f\|^2 $$</mathjax></p>
+<ul>
+<li>TV-L1</li>
+</ul>
+<p><mathjax>$$ \min_x \|\nabla x\| + \lambda \|x - f\| $$</mathjax></p>
+<p>where <mathjax>$x$</mathjax> is the denoised image, <mathjax>$f$</mathjax> is the observed image and <mathjax>$\lambda$</mathjax> is the regularisation coefficient.</p>
+<p>Let's define descrete <mathjax>$\nabla$</mathjax> operator and it's transposition <mathjax>$\nabla^T$</mathjax>, which will be needed later:</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">nabla</span><span class="p">(</span><span class="n">I</span><span class="p">):</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">I</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">G</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">I</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">G</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">I</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+    <span class="n">G</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">I</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">G</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">I</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+<span class="k">def</span> <span class="nf">nablaT</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">G</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="c"># note that we just reversed left and right sides</span>
+    <span class="c"># of each line to obtain the transposed operator</span>
+    <span class="n">I</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">G</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">I</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span> <span class="p">]</span> <span class="o">+=</span> <span class="n">G</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">I</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>    <span class="o">-=</span> <span class="n">G</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">I</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span> <span class="p">]</span>    <span class="o">+=</span> <span class="n">G</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">I</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we can define functions for computing current solution's energy:</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="c"># little auxiliary routine</span>
+<span class="k">def</span> <span class="nf">anorm</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Calculate L2 norm over the last array dimention&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">calc_energy_ROF</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">clambda</span><span class="p">):</span>
+    <span class="n">Ereg</span> <span class="o">=</span> <span class="n">anorm</span><span class="p">(</span><span class="n">nabla</span><span class="p">(</span><span class="n">X</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">Edata</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">clambda</span> <span class="o">*</span> <span class="p">((</span><span class="n">X</span> <span class="o">-</span> <span class="n">observation</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Ereg</span> <span class="o">+</span> <span class="n">Edata</span>
+
+<span class="k">def</span> <span class="nf">calc_energy_TVL1</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">clambda</span><span class="p">):</span>
+    <span class="n">Ereg</span> <span class="o">=</span> <span class="n">anorm</span><span class="p">(</span><span class="n">nabla</span><span class="p">(</span><span class="n">X</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">Edata</span> <span class="o">=</span> <span class="n">clambda</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">observation</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Ereg</span> <span class="o">+</span> <span class="n">Edata</span>
+
+<span class="c"># some reasonable lambdas</span>
+<span class="n">lambda_ROF</span> <span class="o">=</span> <span class="mf">8.0</span>
+<span class="n">lambda_TVL1</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="k">print</span> <span class="s">&quot;ROF:&quot;</span><span class="p">,</span>
+<span class="k">print</span> <span class="n">calc_energy_ROF</span><span class="p">(</span><span class="n">img_obs</span><span class="p">,</span> <span class="n">img_obs</span><span class="p">,</span> <span class="n">lambda_ROF</span><span class="p">),</span> 
+<span class="k">print</span> <span class="n">calc_energy_ROF</span><span class="p">(</span><span class="n">img_ref</span><span class="p">,</span> <span class="n">img_obs</span><span class="p">,</span> <span class="n">lambda_ROF</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;TV-L1:&quot;</span><span class="p">,</span>
+<span class="k">print</span> <span class="n">calc_energy_TVL1</span><span class="p">(</span><span class="n">img_obs</span><span class="p">,</span> <span class="n">img_obs</span><span class="p">,</span> <span class="n">lambda_TVL1</span><span class="p">),</span> 
+<span class="k">print</span> <span class="n">calc_energy_TVL1</span><span class="p">(</span><span class="n">img_ref</span><span class="p">,</span> <span class="n">img_obs</span><span class="p">,</span> <span class="n">lambda_TVL1</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<div class="hbox output_area">
+<div class="prompt output_prompt"></div>
+<div class="output_subarea output_stream output_stdout">
+<pre>ROF: 14819.2164739 8308.70782827
+TV-L1: 14819.2164739 9610.24786403
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>OK, at least we see that noisy image energy is greater than the reference.</p>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Saddle point formulation</h2>
+<p>Now we can apply the Primal-Dual algorithm to minimize defined energy. Algorithm works on a general problems, defined in a form </p>
+<p><mathjax>$$ \min_x \; F(Kx) + G(x) \tag{1} $$</mathjax></p>
+<p>where <mathjax>$F$</mathjax> and <mathjax>$G$</mathjax> are some convex functions and <mathjax>$K$</mathjax> is a linear operator. First we define the dual of a function: </p>
+<p><mathjax>$$ F^*(p) = \sup_ {x \in X} \; \langle p, x \rangle - F(x) \tag{2} $$</mathjax></p>
+<p>It can be shown that for convex functions</p>
+<p><mathjax>$$ F = F^{**}(p) = \sup_ {x \in X} \; \langle p, x \rangle - F^*(x)$$</mathjax></p>
+<p>Applying this transormation to function <mathjax>$F$</mathjax> in (1) we get the following saddle point problem:</p>
+<p><mathjax>$$ \min_x \; \max_p  \; \langle Kx, p\rangle  + G(x) - F^*(p)
+\tag{3}
+$$</mathjax></p>
+<p>In both ROF and TV-L1 denoising modelds regularisation term <mathjax>$F(Kx) = \sum_i \| \nabla x_i \|$</mathjax>, where <mathjax>$\nabla x_i$</mathjax> is a two-dimentional intensity gradient vector at image pixel <mathjax>$i$</mathjax>. Then, according to (2)</p>
+<p><mathjax>$$ F^*(p) = \delta_P(p) = 
+\begin{cases}
+0       &amp; p \in P \\
++\infty &amp; p \notin P
+\end{cases}
+$$</mathjax></p>
+<p>where <mathjax>$P = \{p :  \forall i \; \| p_i \| \leq 1\}$</mathjax></p>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Proximity operator</h2>
+<p>Before proceding to the Primal-Dual algoritm we have to define the <em>proximity operator</em> of a function:</p>
+<p><mathjax>$$ (I + \tau \partial F)^{-1}(x) =  argmin_{y} \frac{1}{2}\|y-x\|^2 + \tau F(y) $$</mathjax></p>
+<p>This operator is equivalent to implicit gradient descent step for a function. In order to use Primal-Dual algorithm, functions <mathjax>$F^*$</mathjax> and <mathjax>$G$</mathjax> must have an easy to compute proximity operator. For example:</p>
+<p><mathjax>$$
+\begin{eqnarray} 
+F^*(p) =  \delta_P(p) \quad &amp;\Leftrightarrow &amp; \quad
+(I + \sigma \partial F^*)^{-1}(p) &amp;= \mathbf{project}_P (p) \\
+G_{ROF}(x) = \frac{\lambda}{2} \|x - f\|^2 \quad &amp;\Leftrightarrow &amp; \quad
+(I + \tau \partial G_{ROF})^{-1}(x) &amp;= \frac{x + \lambda\tau f}{1 + \lambda\tau} \\
+G_{TV-L1}(x) =  \lambda \|x - f\| \quad &amp;\Leftrightarrow &amp; \quad
+(I + \tau \partial G_{TV-L1})^{-1}(x) &amp;= \mathbf{shrink} (x, f, \lambda\tau)
+\end{eqnarray}
+$$</mathjax></p>
+<p>Where </p>
+<p><mathjax>$$\mathbf{project}_P(p) = \frac{p}{max(\|p\|, 1)}$$</mathjax> </p>
+<p>is a pixel-wise euclidian projection onto feasible set <mathjax>$P$</mathjax> and </p>
+<p><mathjax>$$ \mathbf{shrink} (x, f, \lambda\sigma) = 
+\begin{cases}
+x - \lambda\sigma &amp; x &gt; f + \lambda\sigma \\
+x + \lambda\sigma &amp; x &lt; f - \lambda\sigma \\
+f &amp; |x-f| \leq \lambda\sigma
+\end{cases}$$</mathjax></p>
+<p>Here are the implementations of the auxiliary functions <mathjax>$\mathbf{project}$</mathjax> and <mathjax>$\mathbf{shrink}$</mathjax>:  </p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">project_nd</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;perform a pixel-wise projection onto R-radius balls&#39;&#39;&#39;</span>
+    <span class="n">nP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">anorm</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">/</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">P</span> <span class="o">/</span> <span class="n">nP</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+<span class="k">def</span> <span class="nf">shrink_1d</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;pixel-wise scalar srinking&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">X</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">F</span> <span class="o">-</span> <span class="n">X</span><span class="p">,</span> <span class="o">-</span><span class="n">step</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Primal-Dual algorithm</h2>
+<p>Now we are ready to implement the Primal-Dual algorithm. Here it is in it's general form:</p>
+<ul>
+<li>Choose step sizes <mathjax>$\sigma &gt; 0$</mathjax> and <mathjax>$\tau &gt; 0$</mathjax>, so that <mathjax>$\sigma\tau L^2 &lt; 1$</mathjax>, where <mathjax>$L = \|K\|$</mathjax>, and set <mathjax>$\theta = 1.$</mathjax></li>
+<li>Choose some initial values for pimal variable <mathjax>$x_0$</mathjax> and dual variable <mathjax>$p_0$</mathjax>. Our model is convex,  so any assignment should converge to the global minima.</li>
+<li>Iterate until convergence:
+<mathjax>$$
+\begin{cases}
+p_{n+1} = (I + \sigma\partial F^*)^{-1} (p_n + \sigma K x_n) \\
+\hat x_{n+1} = (I + \tau\partial   G)^{-1} (x_n - \tau K^T p_{n+1}) \\
+x_{n+1} = \hat x_{n+1} + \theta (\hat x_{n+1} - x_n)
+%\frac {\|x\|} {2\alpha} &amp; \|x\| \le \alpha \\
+%\|x\| - \frac {\alpha} {2} &amp; \|x\| &gt; \alpha
+\end{cases} 
+$$</mathjax></li>
+</ul>
+<p>Everything is ready to write some code! We'll start with the ROF model.</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">solve_ROF</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">clambda</span><span class="p">,</span> <span class="n">iter_n</span><span class="o">=</span><span class="mi">101</span><span class="p">):</span>
+    <span class="c"># setting step sizes and other params</span>
+    <span class="n">L2</span> <span class="o">=</span> <span class="mf">8.0</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="mf">0.02</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">L2</span><span class="o">*</span><span class="n">tau</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">nabla</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">iter_n</span><span class="p">):</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">project_nd</span><span class="p">(</span> <span class="n">P</span> <span class="o">+</span> <span class="n">sigma</span><span class="o">*</span><span class="n">nabla</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="mf">1.0</span> <span class="p">)</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">clambda</span> <span class="o">*</span> <span class="n">tau</span>
+        <span class="n">X1</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">nablaT</span><span class="p">(</span><span class="n">P</span><span class="p">)</span> <span class="o">+</span> <span class="n">lt</span> <span class="o">*</span> <span class="n">img</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">lt</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X1</span> <span class="o">+</span> <span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">X1</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">calc_energy_ROF</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">clambda</span><span class="p">),</span>
+    <span class="k">print</span>
+    <span class="k">return</span> <span class="n">X</span>
+
+<span class="n">showarray</span><span class="p">(</span><span class="n">solve_ROF</span><span class="p">(</span><span class="n">img_obs</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<div class="hbox output_area">
+<div class="prompt output_prompt"></div>
+<div class="output_subarea output_stream output_stdout">
+<pre>9046.18 6219.51 5824.02 5773.77 5765.98 5763.22 5761.67 5760.67 5759.98 5759.48 5759.11
+</pre>
+</div>
+</div>
+<img src="/images/TV_denoise/TV_denoise_fig_01.png">
+</img>
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>While the ROF model denoising worked reasonably well in the left part of image, where the noise is normaly distributed, outliers are still present in the right part. We may try to decrease <mathjax>$\lambda$</mathjax> value to suppress them, but this leads to reconstructed image oversmoothing:</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="n">showarray</span><span class="p">(</span><span class="n">solve_ROF</span><span class="p">(</span><span class="n">img_obs</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<div class="hbox output_area">
+<div class="prompt output_prompt"></div>
+<div class="output_subarea output_stream output_stdout">
+<pre>8352.82 5028.94 4017.98 3649.27 3511.99 3461.48 3442.93 3436.18 3433.42 3432.08 3431.30
+</pre>
+</div>
+</div>
+<img src="/images/TV_denoise/TV_denoise_fig_02.png">
+</img>
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now let's try the TV-L1 model:</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">solve_TVL1</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">clambda</span><span class="p">,</span> <span class="n">iter_n</span><span class="o">=</span><span class="mi">101</span><span class="p">):</span>
+    <span class="c"># setting step sizes and other params</span>
+    <span class="n">L2</span> <span class="o">=</span> <span class="mf">8.0</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="mf">0.02</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">L2</span><span class="o">*</span><span class="n">tau</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">nabla</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">iter_n</span><span class="p">):</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">project_nd</span><span class="p">(</span> <span class="n">P</span> <span class="o">+</span> <span class="n">sigma</span><span class="o">*</span><span class="n">nabla</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="mf">1.0</span> <span class="p">)</span>
+        <span class="n">X1</span> <span class="o">=</span> <span class="n">shrink_1d</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">tau</span><span class="o">*</span><span class="n">nablaT</span><span class="p">(</span><span class="n">P</span><span class="p">),</span> <span class="n">img</span><span class="p">,</span> <span class="n">clambda</span><span class="o">*</span><span class="n">tau</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X1</span> <span class="o">+</span> <span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">X1</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;</span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">calc_energy_TVL1</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">clambda</span><span class="p">),</span>
+    <span class="k">print</span>
+    <span class="k">return</span> <span class="n">X</span>
+
+<span class="n">showarray</span><span class="p">(</span><span class="n">solve_TVL1</span><span class="p">(</span><span class="n">img_obs</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<div class="hbox output_area">
+<div class="prompt output_prompt"></div>
+<div class="output_subarea output_stream output_stdout">
+<pre>11761.27 9249.92 8650.40 8301.51 8100.76 7955.57 7854.64 7787.43 7726.12 7687.17 7650.62
+</pre>
+</div>
+</div>
+<img src="/images/TV_denoise/TV_denoise_fig_03.png">
+</img>
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Outliers are gone, while details are preserved.</p>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2>Saddle-point problem formulation for multiple observations</h2>
+<p>Suppose we want to reconstruct a signal from multiple noisy observations with TV-L1 model.</p>
+<p>Let's generate some test data first.</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">make_spotty</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">w</span><span class="o">-</span><span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="o">-</span><span class="n">r</span><span class="p">))</span>
+        <span class="n">img</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="n">r</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">rand</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">img</span>
+
+<span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="n">make_spotty</span><span class="p">(</span><span class="n">make_noisy</span><span class="p">(</span><span class="n">img_ref</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">5</span><span class="p">)]</span>
+<span class="n">showarray</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<img src="/images/TV_denoise/TV_denoise_fig_04.png">
+</img>
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We are going to optimize the following function:</p>
+<p><mathjax>$$ \min_x \|\nabla x\| + \lambda \sum_i \|x - f_i\| $$</mathjax></p>
+<p>or, in general</p>
+<p><mathjax>$$ \min_x \; F(Kx) + \sum_i G_i(x) $$</mathjax></p>
+<p>Lets apply the dual transormation to all <mathjax>$F$</mathjax> and <mathjax>$G_i$</mathjax> functions, obtaining:</p>
+<p><mathjax>$$ \min_x \; \max_{p,r_i} \; \langle Kx, p\rangle - F^*(p) + \sum_i [ \langle x, r_i\rangle - G_i^*(r_i) ]$$</mathjax></p>
+<p><mathjax>$$G_i(x) = \lambda |x-f_i| \quad \Rightarrow \quad
+G_i^*(r) = rf_i + \delta_{|r| \leq \lambda}(r)
+$$</mathjax></p>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Primal-Dual algorithm iteration then becomes:</p>
+<p><mathjax>$$
+\begin{cases}
+p_{n+1} = (I + \sigma\partial F^*)^{-1} (p_n + \sigma K x_n) \\
+r^i_{n+1} = (I + \sigma\partial G_i^*)^{-1} (r^i_n + \sigma x_n) \\
+\hat x_{n+1} = x_n - \tau (K^T p_{n+1} + \sum_i r^i_{n+1}) \\
+x_{n+1} = \hat x_{n+1} + \theta (\hat x_{n+1} - x_n)
+%\frac {\|x\|} {2\alpha} &amp; \|x\| \le \alpha \\
+%\|x\| - \frac {\alpha} {2} &amp; \|x\| &gt; \alpha
+\end{cases} 
+$$</mathjax></p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">solve_TVL1_multy</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span> <span class="n">clambda</span><span class="p">,</span> <span class="n">iter_n</span><span class="o">=</span><span class="mi">101</span><span class="p">):</span>
+    <span class="c"># setting step sizes and other params</span>
+    <span class="n">L2</span> <span class="o">=</span> <span class="mf">8.0</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="mf">0.02</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">L2</span><span class="o">*</span><span class="n">tau</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">imgs</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">imgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">nabla</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">Rs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">iter_n</span><span class="p">):</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">project_nd</span><span class="p">(</span> <span class="n">P</span> <span class="o">+</span> <span class="n">sigma</span><span class="o">*</span><span class="n">nabla</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="mf">1.0</span> <span class="p">)</span>
+        <span class="n">Rs</span> <span class="o">=</span> <span class="n">clip</span><span class="p">(</span><span class="n">Rs</span> <span class="o">+</span> <span class="n">sigma</span><span class="o">*</span><span class="p">(</span><span class="n">X</span><span class="o">-</span><span class="n">imgs</span><span class="p">),</span> <span class="o">-</span><span class="n">clambda</span><span class="p">,</span> <span class="n">clambda</span><span class="p">)</span>
+        <span class="n">X1</span> <span class="o">=</span> <span class="n">X</span> <span class="o">-</span> <span class="n">tau</span><span class="o">*</span><span class="p">(</span><span class="n">nablaT</span><span class="p">(</span><span class="n">P</span><span class="p">)</span> <span class="o">+</span> <span class="n">Rs</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X1</span> <span class="o">+</span> <span class="n">theta</span> <span class="o">*</span> <span class="p">(</span><span class="n">X1</span> <span class="o">-</span> <span class="n">X</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;.&quot;</span><span class="p">,</span>
+    <span class="k">print</span>
+    <span class="k">return</span> <span class="n">X</span>
+
+<span class="n">showarray</span><span class="p">(</span><span class="n">solve_TVL1_multy</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<div class="hbox output_area">
+<div class="prompt output_prompt"></div>
+<div class="output_subarea output_stream output_stdout">
+<pre>. . . . . . . . . . .
+</pre>
+</div>
+</div>
+<img src="/images/TV_denoise/TV_denoise_fig_05.png">
+</img>
+</div>
+</div>
+</div>
+
+<p><em>This post in generated from IPython Notebook, which can be found 
+in my GitHub <a href="https://github.com/znah/notebooks.git">repository</a></em></p>                </article>
+                                                                </aside><!-- /#featured -->
+                                                </ol><!-- /#posts-list -->
+                        </section><!-- /#content -->
+                    <section id="extras" class="body">
+                        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
