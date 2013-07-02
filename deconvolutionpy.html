@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8">
         <title>deconvolution.py</title>
-        <link rel="stylesheet" href="/theme/css/main.css">
+        <link rel="stylesheet" href="http://znah.net/theme/css/main.css">
+                <link href="http://znah.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alexander Mordvintsev Atom Feed" />
                 
     <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type= "text/javascript">
        MathJax.Hub.Config({
@@ -28,18 +29,18 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="/">Alexander Mordvintsev  <strong>Teaching computers to see</strong></a></h1>
+                <h1><a href="http://znah.net/">Alexander Mordvintsev  <strong>Teaching computers to see</strong></a></h1>
                 <nav><ul>
-                                                    <li><a href="/pages/about.html">About</a></li>
-                                                                    <li class="active"><a href="/category/blog.html">blog</a></li>
-                                    <li ><a href="/category/notebooks.html">notebooks</a></li>
+                                                    <li><a href="http://znah.net/pages/about.html">About</a></li>
+                                                                    <li class="active"><a href="http://znah.net/category/blog.html">blog</a></li>
+                                    <li ><a href="http://znah.net/category/notebooks.html">notebooks</a></li>
                                                 </ul></nav>
         </header><!-- /#banner -->
         <section id="content" class="body">
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="/deconvolutionpy.html" rel="bookmark"
+        <a href="http://znah.net/deconvolutionpy.html" rel="bookmark"
            title="Permalink to deconvolution.py">deconvolution.py</a></h1>
           </header>
 
@@ -50,9 +51,9 @@
         </abbr>
 
                 <address class="vcard author">
-                By <a class="url fn" href="/author/alexander-mordvintsev.html">Alexander Mordvintsev</a>
+                By <a class="url fn" href="http://znah.net/author/alexander-mordvintsev.html">Alexander Mordvintsev</a>
         </address>
-        <p>In <a href="/category/blog.html">blog</a>. </p>
+        <p>In <a href="http://znah.net/category/blog.html">blog</a>. </p>
 
 </footer><!-- /.post-info -->      
   <div class="separator" style="clear: both; text-align: left;"></div><div class="separator" style="clear: both;"><span style="font-family: Courier New, Courier, monospace;"><a href="https://github.com/Itseez/opencv/blob/master/samples/python2/deconvolution.py">deconvolution.py</a></span>&nbsp;sample shows how DFT can be used to perform <a href="http://en.wikipedia.org/wiki/Wiener_deconvolution">Weiner deconvolution</a>&nbsp;of an image with user-defined point spread function (PSF). First I tested my implementation on an <a href="http://www.topazlabs.com/infocus/_images/licenseplate_compare.jpg">image</a>&nbsp;from <a href="http://www.topazlabs.com/infocus/#3">Topaz InFocus examples</a>. The result (on the image bellow) was quite impressive, but the low level of noise and the simplicity of PSF suggest that the initial image might have been distorted&nbsp;manually.</div><div class="separator" style="clear: both;"><br /></div><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-ZrBnB8RFpEw/UJePA6LjnDI/AAAAAAAAAmc/kMgwCURQhs8/s1600/deconv_car.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="256" src="http://3.bp.blogspot.com/-ZrBnB8RFpEw/UJePA6LjnDI/AAAAAAAAAmc/kMgwCURQhs8/s640/deconv_car.png" width="640" /></a></div><br />Then I decided to try my program on a couple of crops from shots I made with a compact digital camera. I intentionally shook the camera and applied wrong focus settings to get blurry images. See results below. My aim was to show that deconvolution can sometimes transform unreadable text into readable.<br /><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-gG8s6BIibiE/UJePB5j6SUI/AAAAAAAAAmg/FsWm14b65YU/s1600/deconv_text_blur.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="216" src="http://3.bp.blogspot.com/-gG8s6BIibiE/UJePB5j6SUI/AAAAAAAAAmg/FsWm14b65YU/s640/deconv_text_blur.png" width="640" /></a></div><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-mitC-uOMFz4/UJePCkNPneI/AAAAAAAAAmo/ugqId3jX7Do/s1600/deconv_text_motion.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="196" src="http://2.bp.blogspot.com/-mitC-uOMFz4/UJePCkNPneI/AAAAAAAAAmo/ugqId3jX7Do/s640/deconv_text_motion.png" width="640" /></a></div><br />Note that the user is expected to manually tune the PSF for proper image restoration. Parameter presets for images shown here can be found in the sample's doc string.
@@ -62,7 +63,14 @@
   </article>
 </section>
         <section id="extras" class="body">
-                        </section><!-- /#extras -->
+                                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://znah.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+                            
+                                                </ul>
+                </div><!-- /.social -->
+                </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
                 <address id="about" class="vcard body">
@@ -72,5 +80,15 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15552566-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
 </body>
 </html>
