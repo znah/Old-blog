@@ -4,7 +4,6 @@
         <meta charset="utf-8">
         <title>Coral growth (and voxels)</title>
         <link rel="stylesheet" href="http://znah.net/theme/css/main.css">
-                <link href="http://znah.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alexander Mordvintsev Atom Feed" />
                 
     <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type= "text/javascript">
        MathJax.Hub.Config({
@@ -59,18 +58,24 @@
 Before I learned about computer vision my main&nbsp;interests&nbsp;where computer graphics and&nbsp;computational&nbsp;modeling of&nbsp;physical and biological systems. At the time I was&nbsp;playing with voxel graphics I wanted to find a source of interesting, complex and natural-looking geometry. My&nbsp;adviser pointed me to the work&nbsp;Roeland Merks on&nbsp;<a href="http://homepages.cwi.nl/~merks/Publications/Corals.html">coral growth simulation</a>. I implemented a version of his model and recorded couple of growth videos:<br /><div><br /><div><div class="separator" style="clear: both; text-align: center;"><object class="BLOGGER-youtube-video" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0" data-thumbnail-src="http://2.gvt0.com/vi/KMeLerOrbHo/0.jpg" height="266" width="320"><param name="movie" value="http://www.youtube.com/v/KMeLerOrbHo&amp;fs=1&amp;source=uds" /><param name="bgcolor" value="#FFFFFF" /><param name="allowFullScreen" value="true" /><embed width="320" height="266" src="http://www.youtube.com/v/KMeLerOrbHo&amp;fs=1&amp;source=uds" type="application/x-shockwave-flash" allowfullscreen="true"></embed></object></div><div><br /></div><div class="separator" style="clear: both; text-align: center;"><object class="BLOGGER-youtube-video" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0" data-thumbnail-src="http://2.gvt0.com/vi/QsUm42DJQZI/0.jpg" height="266" width="320"><param name="movie" value="http://www.youtube.com/v/QsUm42DJQZI&amp;fs=1&amp;source=uds" /><param name="bgcolor" value="#FFFFFF" /><param name="allowFullScreen" value="true" /><embed width="320" height="266" src="http://www.youtube.com/v/QsUm42DJQZI&amp;fs=1&amp;source=uds" type="application/x-shockwave-flash" allowfullscreen="true"></embed></object></div><div class="separator" style="clear: both; text-align: center;"><br /></div><div class="separator" style="clear: both; text-align: left;">Later I put the polygonal mesh produced by simulation into my voxel graphics engine (hope to write about it later):</div><div class="separator" style="clear: both; text-align: left;"><br /></div><div style="text-align: center;"><object width="320" height="266" class="BLOGGER-youtube-video" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0" data-thumbnail-src="http://2.gvt0.com/vi/qNRkXfEWum4/0.jpg"><param name="movie" value="http://www.youtube.com/v/qNRkXfEWum4&amp;fs=1&amp;source=uds" /><param name="bgcolor" value="#FFFFFF" /><param name="allowFullScreen" value="true" /><embed width="320" height="266" src="http://www.youtube.com/v/qNRkXfEWum4&amp;fs=1&amp;source=uds" type="application/x-shockwave-flash" allowfullscreen="true"></embed></object></div><div style="text-align: left;"><br /></div><div style="text-align: left;">May be one day I'll make sources of my coral growth model less messy and more&nbsp;convenient&nbsp;to use release them.</div></div></div>
 
     </div><!-- /.entry-content -->
+        <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "coral-growth-and-voxels.html";
+        var disqus_url = "http://znah.net/coral-growth-and-voxels.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://znahnet.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
     
   </article>
 </section>
         <section id="extras" class="body">
-                                <div class="social">
-                        <h2>social</h2>
-                        <ul>
-                            <li><a href="http://znah.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
-                            
-                                                </ul>
-                </div><!-- /.social -->
-                </section><!-- /#extras -->
+                        </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
                 <address id="about" class="vcard body">
@@ -90,5 +95,14 @@ Before I learned about computer vision my main&nbsp;interests&nbsp;where compute
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
     </script>
+<script type="text/javascript">
+    var disqus_shortname = 'znahnet';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

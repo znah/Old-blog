@@ -4,7 +4,6 @@
         <meta charset="utf-8">
         <title>deconvolution.py</title>
         <link rel="stylesheet" href="http://znah.net/theme/css/main.css">
-                <link href="http://znah.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alexander Mordvintsev Atom Feed" />
                 
     <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type= "text/javascript">
        MathJax.Hub.Config({
@@ -59,18 +58,24 @@
   <div class="separator" style="clear: both; text-align: left;"></div><div class="separator" style="clear: both;"><span style="font-family: Courier New, Courier, monospace;"><a href="https://github.com/Itseez/opencv/blob/master/samples/python2/deconvolution.py">deconvolution.py</a></span>&nbsp;sample shows how DFT can be used to perform <a href="http://en.wikipedia.org/wiki/Wiener_deconvolution">Weiner deconvolution</a>&nbsp;of an image with user-defined point spread function (PSF). First I tested my implementation on an <a href="http://www.topazlabs.com/infocus/_images/licenseplate_compare.jpg">image</a>&nbsp;from <a href="http://www.topazlabs.com/infocus/#3">Topaz InFocus examples</a>. The result (on the image bellow) was quite impressive, but the low level of noise and the simplicity of PSF suggest that the initial image might have been distorted&nbsp;manually.</div><div class="separator" style="clear: both;"><br /></div><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-ZrBnB8RFpEw/UJePA6LjnDI/AAAAAAAAAmc/kMgwCURQhs8/s1600/deconv_car.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="256" src="http://3.bp.blogspot.com/-ZrBnB8RFpEw/UJePA6LjnDI/AAAAAAAAAmc/kMgwCURQhs8/s640/deconv_car.png" width="640" /></a></div><br />Then I decided to try my program on a couple of crops from shots I made with a compact digital camera. I intentionally shook the camera and applied wrong focus settings to get blurry images. See results below. My aim was to show that deconvolution can sometimes transform unreadable text into readable.<br /><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-gG8s6BIibiE/UJePB5j6SUI/AAAAAAAAAmg/FsWm14b65YU/s1600/deconv_text_blur.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="216" src="http://3.bp.blogspot.com/-gG8s6BIibiE/UJePB5j6SUI/AAAAAAAAAmg/FsWm14b65YU/s640/deconv_text_blur.png" width="640" /></a></div><br /><div class="separator" style="clear: both; text-align: center;"><a href="http://2.bp.blogspot.com/-mitC-uOMFz4/UJePCkNPneI/AAAAAAAAAmo/ugqId3jX7Do/s1600/deconv_text_motion.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="196" src="http://2.bp.blogspot.com/-mitC-uOMFz4/UJePCkNPneI/AAAAAAAAAmo/ugqId3jX7Do/s640/deconv_text_motion.png" width="640" /></a></div><br />Note that the user is expected to manually tune the PSF for proper image restoration. Parameter presets for images shown here can be found in the sample's doc string.
 
     </div><!-- /.entry-content -->
+        <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "deconvolutionpy.html";
+        var disqus_url = "http://znah.net/deconvolutionpy.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://znahnet.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
     
   </article>
 </section>
         <section id="extras" class="body">
-                                <div class="social">
-                        <h2>social</h2>
-                        <ul>
-                            <li><a href="http://znah.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
-                            
-                                                </ul>
-                </div><!-- /.social -->
-                </section><!-- /#extras -->
+                        </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
                 <address id="about" class="vcard body">
@@ -90,5 +95,14 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
     </script>
+<script type="text/javascript">
+    var disqus_shortname = 'znahnet';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>

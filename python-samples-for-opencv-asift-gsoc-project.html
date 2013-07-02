@@ -4,7 +4,6 @@
         <meta charset="utf-8">
         <title>Python samples for OpenCV: ASIFT (GSoC project)</title>
         <link rel="stylesheet" href="http://znah.net/theme/css/main.css">
-                <link href="http://znah.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Alexander Mordvintsev Atom Feed" />
                 
     <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type= "text/javascript">
        MathJax.Hub.Config({
@@ -59,18 +58,24 @@
   <div dir="ltr" style="text-align: left;" trbidi="on">I often use python for doing experiments in computer vision and other topics. It allows me to simply open a<br />text editor and type:<br /><blockquote class="tr_bq"><span style="font-family: Courier New, Courier, monospace;">import numpy as np<br />import cv2<br />&lt;...and some fancy CV code goes here&gt;</span></blockquote>No messing with projects and build systems. If I need some filter design or non-linear optimization - <a href="http://www.scipy.org/">SciPy</a>.&nbsp;For advanced plotting there is <a href="http://matplotlib.org/">matplotlib</a>. And most of the stuff that is needed apart from pure python is bundled&nbsp;into the <a href="http://www.enthought.com/products/epd_free.php">EPD-free</a> distribution.<br /><br /><br />I participated in <a href="http://code.google.com/intl/ru/soc/">Google Summer of Code</a> program in years 2011 and 2012. My objective&nbsp;was making <a href="https://github.com/Itseez/opencv/tree/master/samples/python2">samples</a> of using OpenCV Python API and improving the API itself. Besides making new code samples I:<br /><br /><ul style="text-align: left;"><li>made some previously unexposed parts of OpenCV (like <a href="http://docs.opencv.org/modules/features2d/doc/features2d.html">Features2D</a> framework) available from Python bindings,</li><li>made OpenCV functions release Python's GIL, alowing for multithreaded image processing in python scripts,</li><li>fixed some critical bugs and more...</li></ul><h3 style="text-align: left;">ASIFT</h3><div><a href="http://www.cmap.polytechnique.fr/~yu/research/ASIFT/demo.html">ASIFT</a> is a method of improving feature-based image matching by sampling various affine transformations of matched images. This strategy can be implemented on top of any scale and rotation invariant local image features. The authors of the method adopted <a href="http://en.wikipedia.org/wiki/Scale-invariant_feature_transform">SIFT</a> for their reference implementation. Here is <a href="https://github.com/Itseez/opencv/blob/master/samples/python2/asift.py">my ASIFT implementation</a>, created as a part of GSoC.&nbsp;Image below shows the result of its application to a pair of images taken from an airplane. It manages to find 42 matches on an image pair I find hard to match even for humans!</div><div><br /></div><div class="separator" style="clear: both; text-align: center;"></div><div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/-IBeL2jAZyzM/UI_6H2VrDvI/AAAAAAAAAmM/6O61ylqw4Hs/s1600/asift.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="240" src="http://3.bp.blogspot.com/-IBeL2jAZyzM/UI_6H2VrDvI/AAAAAAAAAmM/6O61ylqw4Hs/s640/asift.png" width="640" /></a></div><br /></div>
 
     </div><!-- /.entry-content -->
+        <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "python-samples-for-opencv-asift-gsoc-project.html";
+        var disqus_url = "http://znah.net/python-samples-for-opencv-asift-gsoc-project.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://znahnet.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
     
   </article>
 </section>
         <section id="extras" class="body">
-                                <div class="social">
-                        <h2>social</h2>
-                        <ul>
-                            <li><a href="http://znah.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
-                            
-                                                </ul>
-                </div><!-- /.social -->
-                </section><!-- /#extras -->
+                        </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
                 <address id="about" class="vcard body">
@@ -90,5 +95,14 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
     </script>
+<script type="text/javascript">
+    var disqus_shortname = 'znahnet';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
 </html>
