@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
         <meta charset="utf-8">
-        <title>Alexander Mordvintsev - notebooks</title>
+        <title>Geodesic distance transform</title>
         <link rel="stylesheet" href="http://znah.net/theme/css/main.css">
                 
     <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type= "text/javascript">
@@ -35,13 +35,16 @@
                                     <li class="active"><a href="http://znah.net/category/notebooks.html">notebooks</a></li>
                                                 </ul></nav>
         </header><!-- /#banner -->
-                
-            
+        <section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="http://znah.net/geodesic-distance-transform.html" rel="bookmark"
+           title="Permalink to Geodesic distance transform">Geodesic distance transform</a></h1>
+          </header>
 
-                            <aside id="featured" class="body">
-                <article>
-                    <h1 class="entry-title"><a href="http://znah.net/geodesic-distance-transform.html">Geodesic distance transform</a></h1> 
-                    <footer class="post-info">
+    <div class="entry-content">
+      <footer class="post-info">
         <abbr class="published" title="2013-07-22T00:00:00">
                 Пн 22 Июль 2013
         </abbr>
@@ -51,7 +54,7 @@
         </address>
         <p>In <a href="http://znah.net/category/notebooks.html">notebooks</a>. </p>
 
-</footer><!-- /.post-info --><div class="text_cell_render border-box-sizing rendered_html">
+</footer><!-- /.post-info -->      <div class="text_cell_render border-box-sizing rendered_html">
 <p>This notebook shows how Geodesic Discance Transform (GDT) using Fast Sweeping Method (FSM) can be implemented using Python. GDT can be thought of as a computation of shortest pathes on an image plane with a given cost function. It can be used as a part of more complex image processing tasks such as segmentation or coloring <a href="http://research.microsoft.com/apps/pubs/default.aspx?id=81528">[1]</a>.</p>
 <p>The description of different GDT construction methods can be found in <a href="http://www.cs.technion.ac.il/~weber/Publications/PMM/Parallel_Algorithms_for_Approximation_of_Distance_Maps_on_Parametric_Surfaces.pdf">[2]</a>.</p>
 </div>
@@ -192,41 +195,25 @@
 </div>
 
 <p><em>This post in generated from IPython Notebook, which can be found 
-in my GitHub <a href="https://github.com/znah/notebooks.git">repository</a></em></p><p>There are <a href="http://znah.net/geodesic-distance-transform.html#disqus_thread">comments</a>.</p>                </article>
-                            </aside><!-- /#featured -->
-                            <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
-                                                
-
-                 
-                        <li><article class="hentry">    
-                <header>
-                    <h1><a href="http://znah.net/rof-and-tv-l1-denoising-with-primal-dual-algorithm.html" rel="bookmark"
-                           title="Permalink to ROF and TV-L1 denoising with Primal-Dual algorithm">ROF and TV-L1 denoising with Primal-Dual algorithm</a></h1>
-                </header>
-                
-                <div class="entry-content">
-                <footer class="post-info">
-        <abbr class="published" title="2013-06-30T00:00:00">
-                Вс 30 Июнь 2013
-        </abbr>
-
-                <address class="vcard author">
-                By <a class="url fn" href="http://znah.net/author/alexander-mordvintsev.html">Alexander Mordvintsev</a>
-        </address>
-        <p>In <a href="http://znah.net/category/notebooks.html">notebooks</a>. </p>
-
-</footer><!-- /.post-info -->                <div class="text_cell_render border-box-sizing rendered_html">
-<p>This notebook shows how ROF and TV-L1 variational denoising models can be implemented using Primal-Dual optimization alghorithm. While the denoising results may be inferior comparing to some other methods, it is still a nice toy example, showing how convex variational methods can be appied to image processing problems.</p>
-<p>The in-depth ...</p></div>
-                <a class="readmore" href="http://znah.net/rof-and-tv-l1-denoising-with-primal-dual-algorithm.html">read more</a>
-                <p>There are <a href="http://znah.net/rof-and-tv-l1-denoising-with-primal-dual-algorithm.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
-            </article></li>
-                            </ol><!-- /#posts-list -->
-                                                    </section><!-- /#content -->
-                    <section id="extras" class="body">
+in my GitHub <a href="https://github.com/znah/notebooks.git">repository</a></em></p>
+    </div><!-- /.entry-content -->
+        <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "geodesic-distance-transform.html";
+        var disqus_url = "http://znah.net/geodesic-distance-transform.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://znahnet.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
+    
+  </article>
+</section>
+        <section id="extras" class="body">
                         </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
