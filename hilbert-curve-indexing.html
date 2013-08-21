@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <title>Hilbert curve indexing</title>
+        <link rel="stylesheet" href="http://znah.net/theme/css/main.css">
+                
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type= "text/javascript">
+       MathJax.Hub.Config({
+           config: ["MMLorHTML.js"],
+           jax: ["input/TeX","input/MathML","output/HTML-CSS","output/NativeMML"],
+           TeX: { extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"] },
+           extensions: ["tex2jax.js","mml2jax.js","MathMenu.js","MathZoom.js"],
+           tex2jax: { 
+               inlineMath: [ ['$','$'] ],
+               displayMath: [ ['$$','$$'] ],
+               processEscapes: true },
+           "HTML-CSS": {
+               styles: { ".MathJax .mo, .MathJax .mi": {color: "black ! important"}}
+           }
+       });
+    </script>
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="http://znah.net/">Alexander Mordvintsev  <strong>Teaching computers to see</strong></a></h1>
+                <nav><ul>
+                                                    <li><a href="http://znah.net/pages/about.html">About</a></li>
+                                                                    <li ><a href="http://znah.net/category/blog.html">blog</a></li>
+                                    <li class="active"><a href="http://znah.net/category/notebooks.html">notebooks</a></li>
+                                                </ul></nav>
+        </header><!-- /#banner -->
+        <section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="http://znah.net/hilbert-curve-indexing.html" rel="bookmark"
+           title="Permalink to Hilbert curve indexing">Hilbert curve indexing</a></h1>
+          </header>
+
+    <div class="entry-content">
+      <footer class="post-info">
+        <abbr class="published" title="2013-08-21T00:00:00">
+                Ср 21 Август 2013
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://znah.net/author/alexander-mordvintsev.html">Alexander Mordvintsev</a>
+        </address>
+        <p>In <a href="http://znah.net/category/notebooks.html">notebooks</a>. </p>
+
+</footer><!-- /.post-info -->      <div class="text_cell_render border-box-sizing rendered_html">
+<p>Recently I wanted to generate <a href="http://en.wikipedia.org/wiki/Hilbert_curve">hilbert curve</a> indexing of 2D array as a part of one experiment. The experiment wasn't very successful itself, but I found the resulting Python code for curve generation prety neat to post it.</p>
+<p>Here are a couple of interesting references on space-filling curve construction and theis applications:</p>
+<ul>
+<li>http://blog.notdot.net/2009/11/Damn-Cool-Algorithms-Spatial-indexing-with-Quadtrees-and-Hilbert-Curves</li>
+<li>http://www.win.tue.nl/~hermanh/stack/dagstuhl08-talk.pdf</li>
+</ul>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>So let's write some code!</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">hilbert_curve</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Generate Hilbert curve indexing for (n, n) array. &#39;n&#39; must be a power of two. &#39;&#39;&#39;</span>
+    <span class="c"># recursion base</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  
+        <span class="k">return</span> <span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">int32</span><span class="p">)</span>
+    <span class="c"># make (n/2, n/2) index</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">hilbert_curve</span><span class="p">(</span><span class="n">n</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c"># flip it four times and add index offsets</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">flipud</span><span class="p">(</span><span class="n">rot90</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">size</span><span class="o">*</span><span class="mi">2</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">flipud</span><span class="p">(</span><span class="n">rot90</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">size</span><span class="o">*</span><span class="mi">3</span>
+    <span class="c"># and stack four tiles into resulting array</span>
+    <span class="k">return</span> <span class="n">vstack</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">hstack</span><span class="p">,</span> <span class="p">[[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">]]))</span>   
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>That's it. Lets try some small <em>n</em> values.</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">print</span> <span class="n">hilbert_curve</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<div class="hbox output_area">
+<div class="prompt output_prompt"></div>
+<div class="output_subarea output_stream output_stdout">
+<pre>[[0 1]
+ [3 2]]
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="k">print</span> <span class="n">hilbert_curve</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<div class="hbox output_area">
+<div class="prompt output_prompt"></div>
+<div class="output_subarea output_stream output_stdout">
+<pre>[[ 0  3  4  5]
+ [ 1  2  7  6]
+ [14 13  8  9]
+ [15 12 11 10]]
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now let's show the generated indices with color. Note, how nearby cells tend to have close indices. That's why such curves are useful for spatial indexing.</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="n">_</span><span class="o">=</span><span class="n">imshow</span><span class="p">(</span><span class="n">hilbert_curve</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s">&#39;nearest&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<img src="/images/hilbert_curve/hilbert_curve_fig_00.png">
+</img>
+</div>
+</div>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Ok, time to plot the curve itself.</p>
+</div>
+<div class="cell border-box-sizing code_cell vbox">
+<div class="input hbox">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="input_area box-flex1">
+<div class="highlight"><pre><span class="n">idx</span> <span class="o">=</span> <span class="n">hilbert_curve</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+<span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">indices</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="o">.</span><span class="n">ravel</span><span class="p">()],</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="o">.</span><span class="n">ravel</span><span class="p">()]</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">axis</span><span class="p">(</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
+<span class="n">axis</span><span class="p">(</span><span class="s">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">_</span><span class="o">=</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymin</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+<div class="vbox output_wrapper">
+<div class="output vbox">
+<img src="/images/hilbert_curve/hilbert_curve_fig_01.png">
+</img>
+</div>
+</div>
+</div>
+
+<p><em>This post in generated from IPython Notebook, which can be found 
+in my GitHub <a href="https://github.com/znah/notebooks.git">repository</a></em></p>
+    </div><!-- /.entry-content -->
+        <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "hilbert-curve-indexing.html";
+        var disqus_url = "http://znah.net/hilbert-curve-indexing.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://znahnet.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
+    
+  </article>
+</section>
+        <section id="extras" class="body">
+                        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-15552566-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<script type="text/javascript">
+    var disqus_shortname = 'znahnet';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+</html>

@@ -38,10 +38,41 @@
                 
             
 
-                            <aside id="featured" class="body">
-                <article>
-                    <h1 class="entry-title"><a href="http://znah.net/geodesic-distance-transform.html">Geodesic distance transform</a></h1> 
-                    <footer class="post-info">
+                            <section id="content" class="body">
+                    <ol id="posts-list" class="hfeed" start="2">
+                        <li><article class="hentry">    
+                <header>
+                    <h1><a href="http://znah.net/hilbert-curve-indexing.html" rel="bookmark"
+                           title="Permalink to Hilbert curve indexing">Hilbert curve indexing</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
+        <abbr class="published" title="2013-08-21T00:00:00">
+                Ср 21 Август 2013
+        </abbr>
+
+                <address class="vcard author">
+                By <a class="url fn" href="http://znah.net/author/alexander-mordvintsev.html">Alexander Mordvintsev</a>
+        </address>
+        <p>In <a href="http://znah.net/category/notebooks.html">notebooks</a>. </p>
+
+</footer><!-- /.post-info -->                <div class="text_cell_render border-box-sizing rendered_html">
+<p>Recently I wanted to generate <a href="http://en.wikipedia.org/wiki/Hilbert_curve">hilbert curve</a> indexing of 2D array as a part of one experiment. The experiment wasn't very successful itself, but I found the resulting Python code for curve generation prety neat to post it.</p>
+<p>Here are a couple of interesting references on space-filling curve construction ...</p></div>
+                <a class="readmore" href="http://znah.net/hilbert-curve-indexing.html">read more</a>
+                <p>There are <a href="http://znah.net/hilbert-curve-indexing.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                    
+
+                        <li><article class="hentry">    
+                <header>
+                    <h1><a href="http://znah.net/geodesic-distance-transform.html" rel="bookmark"
+                           title="Permalink to Geodesic distance transform">Geodesic distance transform</a></h1>
+                </header>
+                
+                <div class="entry-content">
+                <footer class="post-info">
         <abbr class="published" title="2013-07-22T00:00:00">
                 Пн 22 Июль 2013
         </abbr>
@@ -51,156 +82,13 @@
         </address>
         <p>In <a href="http://znah.net/category/notebooks.html">notebooks</a>. </p>
 
-</footer><!-- /.post-info --><div class="text_cell_render border-box-sizing rendered_html">
-<p>This notebook shows how Geodesic Discance Transform (GDT) using Fast Sweeping Method (FSM) can be implemented using Python. GDT can be thought of as a computation of shortest pathes on an image plane with a given cost function. It can be used as a part of more complex image processing tasks such as segmentation or coloring <a href="http://research.microsoft.com/apps/pubs/default.aspx?id=81528">[1]</a>.</p>
-<p>The description of different GDT construction methods can be found in <a href="http://www.cs.technion.ac.il/~weber/Publications/PMM/Parallel_Algorithms_for_Approximation_of_Distance_Maps_on_Parametric_Surfaces.pdf">[2]</a>.</p>
-</div>
-<div class="cell border-box-sizing code_cell vbox">
-<div class="input hbox">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
-<div class="input_area box-flex1">
-<div class="highlight"><pre><span class="c"># some preparations first</span>
-<span class="o">%</span><span class="k">load_ext</span> <span class="n">cythonmagic</span>
-<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">lena</span>
-<span class="kn">import</span> <span class="nn">scipy.ndimage</span> <span class="kn">as</span> <span class="nn">nd</span>
-<span class="kn">import</span> <span class="nn">itertools</span> <span class="kn">as</span> <span class="nn">it</span>
-<span class="n">figsize</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-</pre></div>
+</footer><!-- /.post-info -->                <div class="text_cell_render border-box-sizing rendered_html">
+<p>This notebook shows how Geodesic Discance Transform (GDT) using Fast Sweeping Method (FSM) can be implemented using Python. GDT can be thought of as a computation of shortest pathes on an image plane with a given cost function. It can be used as a part of more complex image processing ...</p></div>
+                <a class="readmore" href="http://znah.net/geodesic-distance-transform.html">read more</a>
+                <p>There are <a href="http://znah.net/geodesic-distance-transform.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
+            </article></li>
+                    
 
-</div>
-</div>
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We use image gradient magnitude to costruct our cost function.</p>
-</div>
-<div class="cell border-box-sizing code_cell vbox">
-<div class="input hbox">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
-<div class="input_area box-flex1">
-<div class="highlight"><pre><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">lena</span><span class="p">())</span> <span class="o">/</span> <span class="mf">255.0</span>
-<span class="n">G</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">gaussian_gradient_magnitude</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-<span class="n">Cost</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">G</span><span class="o">*</span><span class="mi">200</span>
-<span class="n">imshow</span><span class="p">(</span><span class="n">Cost</span><span class="p">)</span>
-<span class="n">colorbar</span><span class="p">()</span>
-<span class="n">_</span><span class="o">=</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Cost function&#39;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-<div class="vbox output_wrapper">
-<div class="output vbox">
-<img src="/images/geodesic/geodesic_fig_00.png">
-</img>
-</div>
-</div>
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><code>sweep</code> function is the core of the algorithm. It propogates shortest path wavefront in right-down direction. We use Cython to accelerate pixel iteration.</p>
-</div>
-<div class="cell border-box-sizing code_cell vbox">
-<div class="input hbox">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="input_area box-flex1">
-<div class="highlight"><pre><span class="o">%%</span><span class="k">cython</span>
-<span class="kn">from</span> <span class="nn">libc.math</span> <span class="nn">cimport</span> <span class="nn">sqrt</span>
-
-<span class="k">def</span> <span class="nf">sweep</span><span class="p">(</span><span class="nb">float</span><span class="p">[:,:]</span> <span class="n">A</span><span class="p">,</span> <span class="nb">float</span><span class="p">[:,:]</span> <span class="n">Cost</span><span class="p">):</span>
-    <span class="n">cdef</span> <span class="nb">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span>
-    <span class="n">cdef</span> <span class="nb">float</span> <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">max_diff</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
-            <span class="n">C</span> <span class="o">=</span> <span class="n">Cost</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">t1</span><span class="o">-</span><span class="n">t2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">C</span><span class="p">:</span>
-                <span class="n">t0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">)</span> <span class="o">+</span> <span class="n">C</span>  <span class="c"># handle degenerate case</span>
-            <span class="k">else</span><span class="p">:</span>    
-                <span class="n">t0</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span> <span class="o">+</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">C</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">t1</span><span class="o">-</span><span class="n">t2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-            <span class="n">max_diff</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_diff</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span>
-            <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">t0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">max_diff</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><code>GDT</code> function uses NumPy array slicing to sweep the wavefront in four possible directions.</p>
-</div>
-<div class="cell border-box-sizing code_cell vbox">
-<div class="input hbox">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="input_area box-flex1">
-<div class="highlight"><pre><span class="k">def</span> <span class="nf">GDT</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">sweeps</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">A</span><span class="p">[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">A</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">A</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-    <span class="n">costs</span> <span class="o">=</span> <span class="p">[</span><span class="n">C</span><span class="p">,</span> <span class="n">C</span><span class="p">[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">C</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">C</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">sweeps</span><span class="p">,</span> <span class="n">costs</span><span class="p">))):</span>
-        <span class="k">print</span> <span class="n">i</span><span class="p">,</span>
-        <span class="k">if</span> <span class="n">sweep</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">40</span><span class="p">:</span>
-            <span class="k">break</span>
-    <span class="k">return</span> <span class="n">A</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell vbox">
-<div class="input hbox">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="input_area box-flex1">
-<div class="highlight"><pre><span class="n">A</span> <span class="o">=</span> <span class="n">zeros_like</span><span class="p">(</span><span class="n">Cost</span><span class="p">)</span> <span class="c"># create distance accumulation array</span>
-<span class="n">A</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">1e5</span>           <span class="c"># fill it with large values to mark</span>
-                     <span class="c"># cells with unknown distance</span>
-<span class="n">A</span><span class="p">[</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>      <span class="c"># set the source</span>
-
-<span class="n">A</span> <span class="o">=</span> <span class="n">GDT</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">Cost</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-<div class="vbox output_wrapper">
-<div class="output vbox">
-<div class="hbox output_area">
-<div class="prompt output_prompt"></div>
-<div class="output_subarea output_stream output_stdout">
-<pre>0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Here is the contour plot of the GDT with the given cost function. Note, how isolines tend to follow image edges.</p>
-</div>
-<div class="cell border-box-sizing code_cell vbox">
-<div class="input hbox">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="input_area box-flex1">
-<div class="highlight"><pre><span class="n">contour</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s">&#39;image&#39;</span><span class="p">)</span>
-<span class="n">_</span><span class="o">=</span><span class="n">axis</span><span class="p">(</span><span class="s">&#39;image&#39;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-<div class="vbox output_wrapper">
-<div class="output vbox">
-<img src="/images/geodesic/geodesic_fig_01.png">
-</img>
-</div>
-</div>
-</div>
-
-<p><em>This post in generated from IPython Notebook, which can be found 
-in my GitHub <a href="https://github.com/znah/notebooks.git">repository</a></em></p><p>There are <a href="http://znah.net/geodesic-distance-transform.html#disqus_thread">comments</a>.</p>                </article>
-                            </aside><!-- /#featured -->
-                            <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
-                                                
-
-                 
                         <li><article class="hentry">    
                 <header>
                     <h1><a href="http://znah.net/rof-and-tv-l1-denoising-with-primal-dual-algorithm.html" rel="bookmark"
@@ -224,7 +112,7 @@ in my GitHub <a href="https://github.com/znah/notebooks.git">repository</a></em>
                 <a class="readmore" href="http://znah.net/rof-and-tv-l1-denoising-with-primal-dual-algorithm.html">read more</a>
                 <p>There are <a href="http://znah.net/rof-and-tv-l1-denoising-with-primal-dual-algorithm.html#disqus_thread">comments</a>.</p>                </div><!-- /.entry-content -->
             </article></li>
-                            </ol><!-- /#posts-list -->
+                    </ol><!-- /#posts-list -->
                                                     </section><!-- /#content -->
                     <section id="extras" class="body">
                         </section><!-- /#extras -->
