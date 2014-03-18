@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>three.js webgl - orbit controls</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            body {
+                color: #000;
+                font-family:Monospace;
+                font-size:13px;
+                text-align:center;
+                font-weight: bold;
+
+                background-color: #fff;
+                margin: 0px;
+                overflow: hidden;
+            }
+
+            #info {
+                color:#000;
+                position: absolute;
+                top: 0px; width: 100%;
+                padding: 5px;
+
+            }
+
+            a {
+                color: red;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="container"></div>
+        <div id="info">
+            <a href="http://threejs.org" target="_blank">three.js</a> - orbit controls example
+        </div>
+
+        <script src="js/three.js"></script>
+        <script src="js/dat.gui.min.js"></script>
+
+        <script src="js/Detector.js"></script>
+        <script src="js/controls/OrbitControls.js"></script>
+        <script src="js/libs/stats.min.js"></script>
+
+        <script src="videocloud.js"></script>
+        <script src="tracks.js"></script>
+        <script src="skydome.js"></script>
+
+        <script>
+            "use strict";
+
+            if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+            var container, stats;
+
+            var ctx = {
+                params: {
+                    playbackRate: 0.5,
+                    particleSpeed: 100.0,
+                    pointScale: 30.0,
+
+                    colorScale: 90.0,
+                    color1 : "#14ffb9",
+                    color2 : "#d4bb6a",
+
+                    focal_coef : 0.001737,
+                    depth_range : new THREE.Vector2(150.0, 250.0),
+                    img_size : new THREE.Vector2(640, 480),
+                    tilt: 16.7
+                },
+
+                camera: null,
+                contros: null,
+                scene:  null,
+                renderer: null,
+                
+                gui:    null,
+
+                video: null,
+                tracks: null,
+                skydome: null,
+            }
+
+            var mouseX = 0, mouseY = 0;
+            var start = Date.now();
+
+            init();
+            render();
+
+            function init() {
+                ctx.gui = new dat.GUI();
+
+                ctx.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 4000 );
+                ctx.camera.position.z = 500;
+                ctx.controls = new THREE.OrbitControls( ctx.camera );
+                ctx.scene = new THREE.Scene();
+                //scene.fog = new THREE.FogExp2( 0xcccccc, 0.0015 );
+
+                ctx.tracks = new JuggleTracks(ctx);
+                ctx.video = new VideoCloud(ctx);
+                ctx.skydome = new Skydome(ctx);
+
+                // renderer
+
+                ctx.renderer = new THREE.WebGLRenderer( { antialias: true} );
+                //renderer.setClearColor( scene.fog.color, 1 );
+                ctx.renderer.setSize( window.innerWidth, window.innerHeight );
+
+                container = document.getElementById( 'container' );
+                container.appendChild( ctx.renderer.domElement );
+
+                stats = new Stats();
+                stats.domElement.style.position = 'absolute';
+                stats.domElement.style.top = '0px';
+                stats.domElement.style.zIndex = 100;
+                container.appendChild( stats.domElement );
+
+                ctx.gui.add(ctx.params, 'playbackRate', 0.0, 2.0);
+                //gui.add(params, 'particleSpeed', 50.0, 500.0).onChange(update_particles);
+                //ctx.gui.add(params, 'pointScale', 10.0, 50.0);
+                //ctx.gui.add(params, 'colorScale', 10.0, 150.0);
+                //gui.addColor(params, 'color2').onChange(update_particles);
+                //gui.addColor(params, 'color1').onChange(update_particles);
+
+                ctx.camera.position = new THREE.Vector3(-80, 60, 100.0);
+                ctx.controls.target.z = -30;
+
+                window.addEventListener( 'resize', onWindowResize, false );
+                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+            }
+
+
+            function onDocumentMouseMove( event ) {
+
+                mouseX = event.clientX - window.innerWidth / 2;;
+                mouseY = event.clientY - window.innerHeight / 2;
+            }
+
+
+            function onWindowResize() {
+
+                ctx.camera.aspect = window.innerWidth / window.innerHeight;
+                ctx.camera.updateProjectionMatrix();
+
+                ctx.renderer.setSize( window.innerWidth, window.innerHeight );
+
+                render();
+            }
+
+            function render() {
+                requestAnimationFrame( render );
+
+                var time = (Date.now() - start)/1000.0*ctx.params.playbackRate;
+                if (ctx.video)
+                {
+                	ctx.video.update();
+                	time = ctx.video.get_time();
+                }
+                ctx.tracks.update(time);
+
+                //camera.lookAt( scene.position );                
+                ctx.renderer.render( ctx.scene, ctx.camera );
+                
+                ctx.controls.update();
+                stats.update();
+            }
+
+
+        </script>
+
+    </body>
+</html>
