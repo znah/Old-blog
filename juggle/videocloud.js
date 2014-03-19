@@ -9,7 +9,7 @@ var VideoCloudShader = {
         R: {type: "m4", value: null }
     },
     side: THREE.DoubleSide,
-    //transparent: true,
+    transparent: true,
     vertexShader:  [
 "     uniform sampler2D video_tex;",
 "     uniform float focal_coef;",
@@ -81,7 +81,7 @@ var VideoCloudShader = {
 "         {",
 "             gl_FragColor = texture2D( video_tex, vec2(vUV.x*0.5, vUV.y) );",
 "         } else {",
-"             gl_FragColor = vec4(vec3(z), 1.0);",
+"             gl_FragColor = vec4(vec3(z), 0.5);",
 "         }",
 
 "     }"].join('\n'),
