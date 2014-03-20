@@ -100,20 +100,6 @@ var TrackLineShader = {
 "       }"].join('\n'),
 };
 
-
-function load_json(url, onready)
-{
-    var r = new XMLHttpRequest();
-    r.open("GET", url, true);
-    r.onreadystatechange = function () {
-      if (r.readyState != 4 || r.status != 200) return;
-      var json = JSON.parse(r.responseText);
-      onready(json);
-    };
-    r.send();
-}
-
-
 function JuggleTracks(ctx)
 {
     var particleMaterial = new THREE.ShaderMaterial( TrackParticleShader );
@@ -127,51 +113,51 @@ function JuggleTracks(ctx)
     TrackShaderUniforms.img_size.value = ctx.params.img_size;
     TrackShaderUniforms.focal_coef.value = ctx.params.focal_coef;
     TrackShaderUniforms.depth_range.value = ctx.params.depth_range;
-    TrackShaderUniforms.R.value = new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(ctx.params.tilt));
+    TrackShaderUniforms.R.value = new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(ctx.data.tilt));
 
 
     ctx.gui.add(TrackShaderUniforms.track_scale_z, 'value', 20.0, 200.0).name('track_scale_z');
-    ctx.gui.add(TrackShaderUniforms.track_offset_z, 'value', -50.0, 50.0).name('track_offset_z');
+    //ctx.gui.add(TrackShaderUniforms.track_offset_z, 'value', -50.0, 50.0).name('track_offset_z');
 
-    load_json("data/juggle.json", function(data)
+    var data = ctx.data;
+
+    var n = data.points.length;
+    geometry.addAttribute( 'position', Float32Array, n, 3 );
+    geometry.addAttribute( 'size', Float32Array, n, 1 );
+    geometry.addAttribute( 'time', Float32Array, n, 1 );
+    var pos_array = geometry.attributes.position.array;
+    var size_array = geometry.attributes.size.array;
+    var time_array = geometry.attributes.time.array;
+    for (var i = 0; i < n; ++i)
     {
-        var n = data.points.length;
-        geometry.addAttribute( 'position', Float32Array, n, 3 );
-        geometry.addAttribute( 'size', Float32Array, n, 1 );
-        geometry.addAttribute( 'time', Float32Array, n, 1 );
-        var pos_array = geometry.attributes.position.array;
-        var size_array = geometry.attributes.size.array;
-        var time_array = geometry.attributes.time.array;
-        for (var i = 0; i < n; ++i)
-        {
-            pos_array[i*3]   = data.points[i][0]
-            pos_array[i*3+1] = data.points[i][1]
-            pos_array[i*3+2] = data.points[i][2]*0.1;
-            time_array[i] = data.points[i][3]
-            size_array[i] = data.points[i][4]
-        }
+        pos_array[i*3]   = data.points[i][0]
+        pos_array[i*3+1] = data.points[i][1]
+        pos_array[i*3+2] = data.points[i][2]*0.1;
+        time_array[i] = data.points[i][3]
+        size_array[i] = data.points[i][4]
+    }
 
-        for (var tr_i = 0; tr_i < data.tracks.length; ++tr_i)
+    for (var tr_i = 0; tr_i < data.tracks.length; ++tr_i)
+    {
+        var line_material = new THREE.LineBasicMaterial( { linewidth: 1 } );
+        var line_geometry = new THREE.BufferGeometry();
+        var trackLine = new THREE.Line( line_geometry,  lineMaterial );
+        line_geometry.attributes.position = geometry.attributes.position;
+        line_geometry.attributes.size = geometry.attributes.size;
+        line_geometry.attributes.time = geometry.attributes.time;
+        var tr = data.tracks[tr_i]; 
+        var n = tr.length;
+        line_geometry.addAttribute( 'index', Uint16Array, (n-1)*2, 1 );
+        line_geometry.offsets = [ {start:0, index:0, count:(n-1)*2} ]
+        var index = line_geometry.attributes.index.array;
+        for (var i = 0; i < n-1; i++)
         {
-            var line_material = new THREE.LineBasicMaterial( { linewidth: 1 } );
-            var line_geometry = new THREE.BufferGeometry();
-            var trackLine = new THREE.Line( line_geometry,  lineMaterial );
-            line_geometry.attributes.position = geometry.attributes.position;
-            line_geometry.attributes.size = geometry.attributes.size;
-            line_geometry.attributes.time = geometry.attributes.time;
-            var tr = data.tracks[tr_i]; 
-            var n = tr.length;
-            line_geometry.addAttribute( 'index', Uint16Array, (n-1)*2, 1 );
-            line_geometry.offsets = [ {start:0, index:0, count:(n-1)*2} ]
-            var index = line_geometry.attributes.index.array;
-            for (var i = 0; i < n-1; i++)
-            {
-                index[i*2] = tr[i]; index[i*2+1] = tr[i+1];
-            }
-            tracksObject.add(trackLine);
+            index[i*2] = tr[i]; index[i*2+1] = tr[i+1];
         }
-        ctx.scene.add(tracksObject);
-    });
+        tracksObject.add(trackLine);
+    }
+    ctx.scene.add(tracksObject);
+
 
     this.update = function(time)
     {

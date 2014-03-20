@@ -81,7 +81,7 @@ var VideoCloudShader = {
 "         {",
 "             gl_FragColor = texture2D( video_tex, vec2(vUV.x*0.5, vUV.y) );",
 "         } else {",
-"             gl_FragColor = vec4(vec3(z), 0.5);",
+"             gl_FragColor = vec4(vec3(z), 0.3);",
 "         }",
 
 "     }"].join('\n'),
@@ -114,11 +114,8 @@ function VideoCloud(ctx)
 
     var restarter = function()
     {
-        var rate = this.playbackRate;
         this.currentTime = 0;
-        this.load();
         this.play();
-        this.playbackRate = rate;
     }
 
     this.cloudVideo.video.addEventListener('ended', restarter, false);
@@ -128,10 +125,8 @@ function VideoCloud(ctx)
     movieMaterial.uniforms.img_size.value = ctx.params.img_size;
     movieMaterial.uniforms.focal_coef.value = ctx.params.focal_coef;
     movieMaterial.uniforms.depth_range.value = ctx.params.depth_range;
-    movieMaterial.uniforms.R.value = new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(ctx.params.tilt));
+    movieMaterial.uniforms.R.value = new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(ctx.data.tilt));
 
-
-    //var movieMaterial = new THREE.MeshBasicMaterial( { map: colorVideo.tex, side:THREE.DoubleSide } );
     var sz = ctx.params.img_size;
     var movieGeometry = new THREE.PlaneGeometry( sz.x, sz.y, sz.x, sz.y );
     var movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );

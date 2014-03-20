@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>three.js webgl - orbit controls</title>
+        <title>Juggle webgl</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
@@ -34,7 +34,7 @@
     <body>
         <div id="container"></div>
         <div id="info">
-            <a href="http://threejs.org" target="_blank">three.js</a> - orbit controls example
+            <a href="http://znah.net" target="_blank">znah.net</a> - Juggle - <a href="http://threejs.org" target="_blank">three.js</a>
         </div>
 
         <script src="js/three.min.js"></script>
@@ -68,8 +68,10 @@
                     focal_coef : 0.001737,
                     depth_range : new THREE.Vector2(150.0, 250.0),
                     img_size : new THREE.Vector2(640, 480),
-                    tilt: 16.7
+                    tilt: 19.9
                 },
+
+                data : null,
 
                 camera: null,
                 contros: null,
@@ -89,6 +91,24 @@
             init();
             render();
 
+            function load_json(url, onready)
+            {
+                var async = typeof onready != 'undefined';
+                var r = new XMLHttpRequest();
+                r.open("GET", url, async);
+                if (async)
+                {
+                    r.onreadystatechange = function () {
+                      if (r.readyState != 4 || r.status != 200) return;
+                      var json = JSON.parse(r.responseText);
+                      onready(json);
+                    };
+                }
+                r.send();
+                if (!async)
+                    return JSON.parse(r.responseText);
+            }
+
             function init() {
                 ctx.gui = new dat.GUI();
 
@@ -97,6 +117,8 @@
                 ctx.controls = new THREE.OrbitControls( ctx.camera );
                 ctx.scene = new THREE.Scene();
                 //scene.fog = new THREE.FogExp2( 0xcccccc, 0.0015 );
+
+                ctx.data = load_json('data/juggle.json');
 
                 ctx.tracks = new JuggleTracks(ctx);
                 ctx.video = new VideoCloud(ctx);
@@ -118,11 +140,6 @@
                 container.appendChild( stats.domElement );
 
                 ctx.gui.add(ctx.params, 'playbackRate', 0.0, 2.0);
-                //gui.add(params, 'particleSpeed', 50.0, 500.0).onChange(update_particles);
-                //ctx.gui.add(params, 'pointScale', 10.0, 50.0);
-                //ctx.gui.add(params, 'colorScale', 10.0, 150.0);
-                //gui.addColor(params, 'color2').onChange(update_particles);
-                //gui.addColor(params, 'color1').onChange(update_particles);
 
                 ctx.camera.position = new THREE.Vector3(-80, 60, 100.0);
                 ctx.controls.target.z = -30;
