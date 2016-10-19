@@ -117,7 +117,7 @@
             function init() {
                 ctx.gui = new dat.GUI();
 
-                ctx.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.05, 500.0 );
+                ctx.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 100.0 );
                 ctx.controls = new THREE.OrbitControls( ctx.camera );
                 
                 ctx.vr_controls = new THREE.VRControls( ctx.camera );
@@ -125,7 +125,7 @@
 
                 ctx.scene = new THREE.Scene();
                 ctx.scene.scale.set(0.01, 0.01, 0.01);
-                ctx.scene.position.set(0.0, 1.0, 0.0);
+                ctx.scene.position.set(0.0, 1.4, 0.0);
                 //scene.fog = new THREE.FogExp2( 0xcccccc, 0.0015 );
 
                 ctx.data = load_json('data/juggle.json');
@@ -174,8 +174,8 @@
 
             function onWindowResize() {
 
-                //ctx.camera.aspect = window.innerWidth / window.innerHeight;
-                //ctx.camera.updateProjectionMatrix();
+                ctx.camera.aspect = window.innerWidth / window.innerHeight;
+                ctx.camera.updateProjectionMatrix();
 
                 //ctx.renderer.setSize( window.innerWidth, window.innerHeight );
                 ctx.vr_effect.setSize( window.innerWidth, window.innerHeight );
