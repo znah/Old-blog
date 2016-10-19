@@ -16,12 +16,6 @@ var TrackShaderUniforms = {
     global_time:       { type: "f", value: 0.0 }
 };
 
-var TrackShaderAttributes = {
-    pos:   { type: 'v3', value: null },
-    size:  { type: 'f',  value: null },
-    time:  { type: 'f',  value: null },
-};
-
 var TrackShaderVP = [
 "    uniform vec2 img_size;",
 "    uniform vec2 depth_range;",
@@ -70,7 +64,6 @@ var TrackShaderVP = [
 
 var TrackParticleShader = {
     uniforms:  TrackShaderUniforms,
-    attributes:  TrackShaderAttributes,
     vertexShader: TrackShaderVP, 
 
     fragmentShader: [
@@ -87,7 +80,6 @@ var TrackParticleShader = {
 
 var TrackLineShader = {
     uniforms:  TrackShaderUniforms,
-    attributes: TrackShaderAttributes,
     vertexShader: TrackShaderVP, 
 
     fragmentShader: [
@@ -107,7 +99,8 @@ function JuggleTracks(ctx)
     var tracksObject = new THREE.Object3D();
     var geometry = new THREE.BufferGeometry();
 
-    var particles = new THREE.ParticleSystem( geometry, particleMaterial );
+    var particles = new THREE.Points( geometry, particleMaterial );
+    particles.frustumCulled = false;
     tracksObject.add( particles );
 
     TrackShaderUniforms.img_size.value = ctx.params.img_size;
@@ -122,12 +115,9 @@ function JuggleTracks(ctx)
     var data = ctx.data;
 
     var n = data.points.length;
-    geometry.addAttribute( 'position', Float32Array, n, 3 );
-    geometry.addAttribute( 'size', Float32Array, n, 1 );
-    geometry.addAttribute( 'time', Float32Array, n, 1 );
-    var pos_array = geometry.attributes.position.array;
-    var size_array = geometry.attributes.size.array;
-    var time_array = geometry.attributes.time.array;
+    var pos_array = new Float32Array(n*3);
+    var size_array = new Float32Array(n);
+    var time_array = new Float32Array(n);
     for (var i = 0; i < n; ++i)
     {
         pos_array[i*3]   = data.points[i][0]
@@ -136,24 +126,27 @@ function JuggleTracks(ctx)
         time_array[i] = data.points[i][3]
         size_array[i] = data.points[i][4]
     }
+    geometry.addAttribute( 'position', new THREE.BufferAttribute( pos_array, 3 ) );
+    geometry.addAttribute( 'size', new THREE.BufferAttribute( size_array, 1 ) );
+    geometry.addAttribute( 'time', new THREE.BufferAttribute( time_array, 1 ) );
 
     for (var tr_i = 0; tr_i < data.tracks.length; ++tr_i)
     {
         var line_material = new THREE.LineBasicMaterial( { linewidth: 1 } );
         var line_geometry = new THREE.BufferGeometry();
-        var trackLine = new THREE.Line( line_geometry,  lineMaterial );
-        line_geometry.attributes.position = geometry.attributes.position;
-        line_geometry.attributes.size = geometry.attributes.size;
-        line_geometry.attributes.time = geometry.attributes.time;
+        line_geometry.addAttribute('position', geometry.attributes.position);
+        line_geometry.addAttribute('size', geometry.attributes.size);
+        line_geometry.addAttribute('time', geometry.attributes.time);
         var tr = data.tracks[tr_i]; 
         var n = tr.length;
-        line_geometry.addAttribute( 'index', Uint16Array, (n-1)*2, 1 );
-        line_geometry.offsets = [ {start:0, index:0, count:(n-1)*2} ]
-        var index = line_geometry.attributes.index.array;
+        var index = new Uint16Array((n-1)*2);
         for (var i = 0; i < n-1; i++)
         {
             index[i*2] = tr[i]; index[i*2+1] = tr[i+1];
         }
+        line_geometry.setIndex( new THREE.BufferAttribute( index, 1 ) );
+        var trackLine = new THREE.LineSegments( line_geometry,  lineMaterial );
+        trackLine.frustumCulled = false;
         tracksObject.add(trackLine);
     }
     ctx.scene.add(tracksObject);

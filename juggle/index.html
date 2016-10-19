@@ -44,6 +44,11 @@
         <script src="js/controls/OrbitControls.js"></script>
         <script src="js/libs/stats.min.js"></script>
 
+        <script src="js/WebVR.js"></script>
+        <script src="js/effects/VREffect.js"></script>
+        <script src="js/controls/VRControls.js"></script>
+        <script src="js/ViveController.js"></script>
+
         <script src="videocloud.js"></script>
         <script src="tracks.js"></script>
         <script src="skydome.js"></script>
@@ -115,6 +120,10 @@
                 ctx.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 4000 );
                 ctx.camera.position.z = 500;
                 ctx.controls = new THREE.OrbitControls( ctx.camera );
+                
+                ctx.vr_controls = new THREE.VRControls( ctx.camera );
+                ctx.vr_controls.standing = true;
+
                 ctx.scene = new THREE.Scene();
                 //scene.fog = new THREE.FogExp2( 0xcccccc, 0.0015 );
 
@@ -130,6 +139,11 @@
                 //renderer.setClearColor( scene.fog.color, 1 );
                 ctx.renderer.setSize( window.innerWidth, window.innerHeight );
 
+                ctx.vr_effect = new THREE.VREffect( ctx.renderer );
+                if ( WEBVR.isAvailable() === true ) {
+                    document.body.appendChild( WEBVR.getButton( ctx.vr_effect ) );
+                }                
+
                 container = document.getElementById( 'container' );
                 container.appendChild( ctx.renderer.domElement );
 
@@ -141,7 +155,7 @@
 
                 ctx.gui.add(ctx.params, 'playbackRate', 0.0, 2.0);
 
-                ctx.camera.position = new THREE.Vector3(-80, 60, 100.0);
+                ctx.camera.position.set(-80, 60, 100.0);
                 ctx.controls.target.z = -30;
 
                 window.addEventListener( 'resize', onWindowResize, false );
@@ -162,13 +176,14 @@
                 ctx.camera.aspect = window.innerWidth / window.innerHeight;
                 ctx.camera.updateProjectionMatrix();
 
-                ctx.renderer.setSize( window.innerWidth, window.innerHeight );
+                //ctx.renderer.setSize( window.innerWidth, window.innerHeight );
+                ctx.vr_effect.setSize( window.innerWidth, window.innerHeight );
 
                 render();
             }
 
             function render() {
-                requestAnimationFrame( render );
+                ctx.vr_effect.requestAnimationFrame( render );
 
                 var time = (Date.now() - start)/1000.0*ctx.params.playbackRate;
                 if (ctx.video)
@@ -179,9 +194,11 @@
                 ctx.tracks.update(time);
 
                 //camera.lookAt( scene.position );                
-                ctx.renderer.render( ctx.scene, ctx.camera );
+                //ctx.renderer.render( ctx.scene, ctx.camera );
+                ctx.vr_effect.render( ctx.scene, ctx.camera );
                 
                 ctx.controls.update();
+                ctx.vr_controls.update();
                 stats.update();
             }
 
