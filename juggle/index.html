@@ -174,8 +174,8 @@
 
             function onWindowResize() {
 
-                ctx.camera.aspect = window.innerWidth / window.innerHeight;
-                ctx.camera.updateProjectionMatrix();
+                //ctx.camera.aspect = window.innerWidth / window.innerHeight;
+                //ctx.camera.updateProjectionMatrix();
 
                 //ctx.renderer.setSize( window.innerWidth, window.innerHeight );
                 ctx.vr_effect.setSize( window.innerWidth, window.innerHeight );
@@ -187,6 +187,7 @@
                 ctx.vr_effect.requestAnimationFrame( render );
 
                 var time = (Date.now() - start)/1000.0*ctx.params.playbackRate;
+                time = time%30.0;
                 if (ctx.video)
                 {
                 	ctx.video.update();
