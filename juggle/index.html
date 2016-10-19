@@ -192,14 +192,15 @@
                 	time = ctx.video.get_time();
                 }
                 ctx.tracks.update(time);
-
-                //camera.lookAt( scene.position );                
-                //ctx.renderer.render( ctx.scene, ctx.camera );
-                ctx.vr_effect.render( ctx.scene, ctx.camera );
                 
                 ctx.controls.update();
                 ctx.vr_controls.update();
                 stats.update();
+
+                //camera.lookAt( scene.position );                
+                //ctx.renderer.render( ctx.scene, ctx.camera );
+                ctx.vr_effect.render( ctx.scene, ctx.camera );
+
             }
 
 
