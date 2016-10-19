@@ -117,7 +117,7 @@
             function init() {
                 ctx.gui = new dat.GUI();
 
-                ctx.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.05, 50.0 );
+                ctx.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.05, 500.0 );
                 ctx.controls = new THREE.OrbitControls( ctx.camera );
                 
                 ctx.vr_controls = new THREE.VRControls( ctx.camera );
