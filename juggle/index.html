@@ -117,14 +117,14 @@
             function init() {
                 ctx.gui = new dat.GUI();
 
-                ctx.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 4000 );
-                ctx.camera.position.z = 500;
+                ctx.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.05, 50.0 );
                 ctx.controls = new THREE.OrbitControls( ctx.camera );
                 
                 ctx.vr_controls = new THREE.VRControls( ctx.camera );
                 ctx.vr_controls.standing = true;
 
                 ctx.scene = new THREE.Scene();
+                ctx.scene.scale.set(0.01, 0.01, 0.01);
                 //scene.fog = new THREE.FogExp2( 0xcccccc, 0.0015 );
 
                 ctx.data = load_json('data/juggle.json');
@@ -155,8 +155,8 @@
 
                 ctx.gui.add(ctx.params, 'playbackRate', 0.0, 2.0);
 
-                ctx.camera.position.set(-80, 60, 100.0);
-                ctx.controls.target.z = -30;
+                ctx.camera.position.set(-0.8, 0.6, 1.0);
+                ctx.controls.target.z = -0.3;
 
                 window.addEventListener( 'resize', onWindowResize, false );
                 document.addEventListener( 'mousemove', onDocumentMouseMove, false );

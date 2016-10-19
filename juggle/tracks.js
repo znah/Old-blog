@@ -9,7 +9,7 @@ var TrackShaderUniforms = {
 
     track_scale_z:     { type: "f", value: 100.0 },
     track_offset_z:    { type: "f", value: -27.0 },
-    point_scale:       { type: "f", value: 20.0 },
+    point_scale:       { type: "f", value: 0.2 },
     color1:            { type: "c", value: new THREE.Color(0x14ffb9) },
     color2:            { type: "c", value: new THREE.Color(0xd4bb6a) },
 
