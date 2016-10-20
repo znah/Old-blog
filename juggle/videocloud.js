@@ -110,7 +110,7 @@ function VideoTex(url)
 
 function VideoCloud(ctx)
 {
-    this.cloudVideo = new VideoTex("data/juggle.mp4");
+    this.cloudVideo = new VideoTex("data/juggle.ogg");
 
     var restarter = function()
     {
